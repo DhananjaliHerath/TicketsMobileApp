@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
+import 'dart:convert';
 
 
 
+import 'package:ticketapp/module/authResponse.dart';
+import 'package:ticketapp/screens/home.dart'; 
 class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -10,6 +15,65 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
  
+  String userName = "";
+  String password = "";
+
+ AuthResonse? authResponse;
+
+// UserResponse? userResponse;
+  var body = {};
+  bool _loading = false;
+
+
+ void getAuthenticate() async {
+  
+   setState(() {
+      _loading = true;
+    });
+
+    body["username"] = userName;
+    body["password"] = password;
+   String bodyJason = json.encode(body);
+   var response = await http.post(
+      Uri.parse("http://localhost:8080/authenticate"),
+      headers: {"Content-Type": "application/json"},
+      body: bodyJason,
+    );
+       
+
+    print("Login Status Code");
+    print(response.statusCode);
+
+     if (response.statusCode == 200) {
+     
+      authResponse = authResonseFromJson(response.body);
+
+      
+      print("User JWT: ${authResponse?.body.jwt}");
+      print("User ID: ${authResponse?.body.user.userId}");
+      print("User Roles: ${authResponse?.body.user.roles}");
+       Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Home()),
+    );
+      
+    } else {
+      
+      print("Authentication failed. Status code: ${response.statusCode}");
+    }
+
+    setState(() {
+      _loading = false;
+    });
+  }
+    
+  
+
+
+
+
+
+
 
 
 
@@ -42,6 +106,10 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         height: 60.0,
         child: TextField(
+             onChanged: (value) => {
+
+                userName = value
+              },
           keyboardType: TextInputType.emailAddress,
           style: TextStyle(
             color: Colors.white,
@@ -98,6 +166,10 @@ Widget _buildPasswordTF() {
         ),
         height: 60.0,
         child: TextField(
+           onChanged: (value) => {
+
+                password = value
+              },
           obscureText: true,
           style: TextStyle(
             color: Colors.white,
@@ -114,9 +186,12 @@ Widget _buildPasswordTF() {
             hintStyle: TextStyle(
               color: Colors.white54,
               fontFamily: 'OpenSans',
+              
             ),
+            
           ),
         ),
+        
       ),
     ],
   );
@@ -129,7 +204,12 @@ Widget _buildPasswordTF() {
     padding: EdgeInsets.symmetric(vertical: 25.0),
     width: double.infinity,
     child: ElevatedButton(
-      onPressed: () => print('Login Button Pressed'),
+  onPressed: () {
+                            getAuthenticate();
+
+                          
+                          },
+
       style: ElevatedButton.styleFrom(
         elevation: 5.0,
         padding: EdgeInsets.all(15.0),
@@ -153,8 +233,7 @@ Widget _buildPasswordTF() {
 }
 
 
-
-
+ 
  
 
   @override
