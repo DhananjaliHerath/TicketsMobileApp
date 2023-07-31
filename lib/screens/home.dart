@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -9,6 +8,7 @@ import 'package:stomp_dart_client/stomp_frame.dart';
 import 'package:ticketapp/module/ticketResponse.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 void main() {
   runApp(MyApp());
@@ -70,6 +70,7 @@ class _HomeState extends State<Home> {
     super.initState();
     getAllTickets();
     _connectToWebSocket();
+    // showToast();
   }
 
   @override
@@ -79,20 +80,36 @@ class _HomeState extends State<Home> {
         title: Text('Ticket List'),
       ),
       body: Container(
-        height: 500,
+        height: MediaQuery.of(context).size.height * 0.9,
         child: ListView.builder(
-          itemCount: ticketList.length + 1, 
+          itemCount: ticketList.length + 1,
           itemBuilder: (context, index) {
-           
             if (index == 0) {
+              // return ListTile(
+              //   title: Text('Notification Message'),
+              //   subtitle: Text(webSocketMessage),
+              // );
+              showToastNotification(webSocketMessage);
               return ListTile(
-                title: Text('Notification Message'),
-                subtitle: Text(webSocketMessage),
-              );
+                  // title: Text('Notification Message'),
+                  // subtitle: Text(webSocketMessage),
+                  // onTap: () {
+                  //   showToastNotification(webSocketMessage);
+                  // },
+                  );
+              // WidgetsBinding.instance.addPostFrameCallback((_) {
+              //   Fluttertoast.showToast(
+              //     msg: webSocketMessage,
+              //     toastLength: Toast.LENGTH_SHORT,
+              //     gravity: ToastGravity.CENTER,
+              //     backgroundColor: Colors.black,
+              //     textColor: Colors.white,
+              //     fontSize: 16.0,
+              //   );
+              // });
+              // return Container();
             }
-
-            
-            final ticketIndex = index - 1; 
+            final ticketIndex = index - 1;
             return ListTile(
               title: Text(ticketList[ticketIndex].title ?? ''),
               subtitle: Text(ticketList[ticketIndex].description),
@@ -125,19 +142,38 @@ class _HomeState extends State<Home> {
       destination: '/notifications',
       headers: {},
       callback: (StompFrame frame) {
-     
         print("Received message: ${frame.body}");
-      
+
         setState(() {
           webSocketMessage = frame.body ?? '';
-       
-          var jsonData = json.decode(frame.body ?? '');
-          var newTicket = Body.fromJson(jsonData); 
 
-       
-          ticketList.insert(0, newTicket); 
+          var jsonData = json.decode(frame.body ?? '');
+          var newTicket = Body.fromJson(jsonData);
+
+          ticketList.insert(0, newTicket);
+
+          // Fluttertoast.showToast(
+          //   msg: (webSocketMessage),
+          //   toastLength: Toast.LENGTH_SHORT,
+          //   gravity: ToastGravity.CENTER,
+          //   backgroundColor: Colors.black,
+          //   textColor: Colors.white,
+          //   fontSize: 16.0,
+          // );
         });
       },
+    );
+  }
+
+  void showToastNotification(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.black54,
+      textColor: Colors.white,
+      fontSize: 16.0,
     );
   }
 }
