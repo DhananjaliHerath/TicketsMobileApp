@@ -95,7 +95,7 @@ class _HomeState extends State<Home> {
             final ticketIndex = index - 1; 
             return ListTile(
               title: Text(ticketList[ticketIndex].title ?? ''),
-              subtitle: Text(ticketList[ticketIndex].description),
+              subtitle: Text(ticketList[ticketIndex].description ?? ''),
             );
           },
         ),
