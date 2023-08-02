@@ -71,6 +71,7 @@ class _HomeState extends State<Home> {
     super.initState();
     getAllTickets();
     _connectToWebSocket();
+
     // showToast();
   }
 
@@ -123,7 +124,6 @@ class _HomeState extends State<Home> {
                   //   //     fontSize: 16.0,
                   //   //   );
                   //   // });
-
                   if (webSocketMessage.isNotEmpty) {
                     showToastNotification(webSocketMessage);
                     // snack(webSocketMessage);
@@ -139,6 +139,7 @@ class _HomeState extends State<Home> {
                 // }
 
                 final ticketIndex = index - 1;
+
                 return ListTile(
                   title: Text(ticketList[ticketIndex].title ?? ''),
                   subtitle: Text(ticketList[ticketIndex].description),
@@ -174,7 +175,7 @@ class _HomeState extends State<Home> {
       headers: {},
       callback: (StompFrame frame) {
         print("Received message: ${frame.body}");
-
+        getAllTickets();
         setState(() {
           webSocketMessage = frame.body ?? '';
 
