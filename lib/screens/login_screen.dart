@@ -319,8 +319,13 @@ class _LoginScreenState extends State<LoginScreen> {
       _loading = true;
     });
 
-    body["username"] = userName;
-    body["password"] = password;
+    // body["username"] = userName;
+    // body["password"] = password;
+
+        body["username"] = "admin@ccms.com";
+    body["password"] = "password";
+
+    
     String bodyJason = json.encode(body);
     var response = await http.post(
       Uri.parse("http://localhost:8080/authenticate"),
