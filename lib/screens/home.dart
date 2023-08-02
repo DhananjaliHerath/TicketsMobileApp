@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
+import 'package:ticketapp/module/pageResponse.dart';
 import 'package:ticketapp/module/ticketResponse.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -36,10 +37,63 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String? jwtToken;
+  List<Content> ticketListPaged = [];
   List<Body> ticketList = [];
+
   bool isWebSocketConnected = false;
   StompClient? stompClient;
   String webSocketMessage = '';
+  PageResponse? pageResponse;
+
+  int currentPage = 1;
+  int offset = 10;
+// getpage function //
+
+  Future<PageResponse> getTicketsPage(int page, int offset) async {
+    var url = Uri.parse(
+        "http://localhost:8080/tickets/page?page=$page&offset=$offset");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    jwtToken = prefs.getString('jwtToken');
+
+    var response = await http.get(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $jwtToken",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var pageResponse = PageResponse.fromJson(json.decode(response.body));
+      return pageResponse;
+    } else {
+      throw Exception('mukuth naaaaaaaaaaaaaaaaaaaa');
+    }
+  }
+
+  void fetchTicketsPage(int page, int offset) async {
+    try {
+      var pageResponse = await getTicketsPage(page, offset);
+      setState(() {
+        ticketListPaged = pageResponse.content!;
+      });
+      print("ticketlist:" + pageResponse.toString());
+    } catch (e) {
+      print("Error fetching tickets: $e");
+    }
+  }
+
+  void _fetchNextPage() {
+    currentPage++;
+    fetchTicketsPage(currentPage, offset);
+  }
+
+  void _fetchPreviousPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      fetchTicketsPage(currentPage, offset);
+    }
+  }
 
   getAllTickets() async {
     var url = Uri.parse("http://localhost:8080/tickets");
@@ -62,7 +116,7 @@ class _HomeState extends State<Home> {
       });
       print("ticketlist:" + ticketList.toString());
     } else {
-      throw Exception('Failed to load tickets');
+      throw Exception('ticket naaaaaaa');
     }
   }
 
@@ -71,8 +125,10 @@ class _HomeState extends State<Home> {
     super.initState();
     getAllTickets();
     _connectToWebSocket();
-
-    // showToast();
+    int page = 1;
+    int offset = 10;
+    fetchTicketsPage(page, offset);
+    // getTicketsPage(page, offset)
   }
 
   // void initState() {
@@ -97,33 +153,11 @@ class _HomeState extends State<Home> {
       body: Column(
         children: [
           Container(
-            height: MediaQuery.of(context).size.height * 0.9,
+            height: MediaQuery.of(context).size.height * 0.8,
             child: ListView.builder(
               itemCount: ticketList.length + 1,
               itemBuilder: (context, index) {
                 if (index == 0) {
-                  //   // return ListTile(
-                  //   //   title: Text('Notification Message'),
-                  //   //   subtitle: Text(webSocketMessage),
-                  //   // );
-                  //   // showToastNotification(webSocketMessage);
-                  //   // return ListTile(
-                  //   // title: Text('Notification Message'),
-                  //   // subtitle: Text(webSocketMessage),
-                  //   // onTap: () {
-                  //   //   showToastNotification(webSocketMessage);
-                  //   // },
-                  //   // );
-                  //   // WidgetsBinding.instance.addPostFrameCallback((_) {
-                  //   //   Fluttertoast.showToast(
-                  //   //     msg: webSocketMessage,
-                  //   //     toastLength: Toast.LENGTH_SHORT,
-                  //   //     gravity: ToastGravity.CENTER,
-                  //   //     backgroundColor: Colors.black,
-                  //   //     textColor: Colors.white,
-                  //   //     fontSize: 16.0,
-                  //   //   );
-                  //   // });
                   if (webSocketMessage.isNotEmpty) {
                     showToastNotification(webSocketMessage);
                     // snack(webSocketMessage);
@@ -142,14 +176,28 @@ class _HomeState extends State<Home> {
 
                 return ListTile(
                   title: Text(ticketList[ticketIndex].title ?? ''),
-                  subtitle: Text(ticketList[ticketIndex].description),
+                  subtitle: Text(ticketList[ticketIndex].description ?? ''),
                 );
               },
             ),
           ),
         ],
       ),
+      bottomNavigationBar: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          ElevatedButton(
+            onPressed: _fetchPreviousPage,
+            child: Text('Previous Page'),
+          ),
+          ElevatedButton(
+            onPressed: _fetchNextPage,
+            child: Text('Next Page'),
+          ),
+        ],
+      ),
     );
+    // );
   }
 
   void _connectToWebSocket() {

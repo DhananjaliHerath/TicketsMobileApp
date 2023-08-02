@@ -38,9 +38,9 @@ class TicketResponse {
 class Body {
   int? id;
   String? title;
-  String description;
+  String? description;
   String? type;
-  String status;
+  String? status;
   DateTime? createdDate;
   dynamic userSubmittedCreatedDate;
   DateTime? updatedDate;
