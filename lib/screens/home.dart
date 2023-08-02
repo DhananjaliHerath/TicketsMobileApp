@@ -148,7 +148,8 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ticket List'),
+        title: Text('Ticket List',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
       ),
       body: Column(
         children: [
@@ -162,16 +163,26 @@ class _HomeState extends State<Home> {
                     showToastNotification(webSocketMessage);
                     // snack(webSocketMessage);
                   }
-
                   return Container();
-                  //   // return Container();
                 }
 
                 final ticketIndex = index - 1;
-                return ListTile(
-                  title: Text(ticketListPaged[ticketIndex].title ?? ''),
-                  subtitle:
-                      Text(ticketListPaged[ticketIndex].description ?? ''),
+                final colorIndex = ticketIndex % 4;
+
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    color: _getColor(colorIndex),
+                    child: ListTile(
+                      title: Text(ticketListPaged[ticketIndex].title ?? '',
+                          style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 2, 177, 246))),
+                      subtitle:
+                          Text(ticketListPaged[ticketIndex].description ?? ''),
+                    ),
+                  ),
                 );
               },
             ),
@@ -192,7 +203,14 @@ class _HomeState extends State<Home> {
         ],
       ),
     );
-    // );
+  }
+
+  Color _getColor(int colorIndex) {
+    List<Color> colors = [
+      Color.fromARGB(255, 202, 205, 206),
+    ];
+
+    return colors[colorIndex % colors.length];
   }
 
   void _connectToWebSocket() {
