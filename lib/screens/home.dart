@@ -141,6 +141,8 @@
 //     );
 //   }
 // }
+
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -148,11 +150,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
-import 'package:ticketapp/module/pageResponse.dart';
 import 'package:ticketapp/module/ticketResponse.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 void main() {
   runApp(MyApp());
@@ -163,6 +163,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Ticket App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        hintColor: Colors.amber,
+        fontFamily: 'Roboto',
+      ),
       home: Home(),
     );
   }
@@ -276,47 +281,63 @@ void fetchTicketsPage(int page, int offset) async {
  
   }
 
-  @override
+
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ticket List'),
+        title: Text('Ticket List',style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),),
       ),
-      body: Container(
-        height: 500,
-        child: ListView.builder(
-          itemCount: ticketListPaged.length + 1,
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return ListTile(
-                title: Text('Notification Message'),
-                subtitle: Text(webSocketMessage),
-              );
-            }
-
-            final ticketIndex = index - 1;
-            return ListTile(
-              title: Text(ticketListPaged[ticketIndex].title ?? ''),
-              subtitle: Text(ticketListPaged[ticketIndex].description ?? ''),
-            );
-          },
-        ),
-      ),
-       bottomNavigationBar: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      body: Column(
         children: [
-          ElevatedButton(
-            onPressed: _fetchPreviousPage,
-            child: Text('Previous Page'),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Notification Message',
+              style: TextStyle(fontSize: 18),
+            ),
           ),
-          ElevatedButton(
-            onPressed: _fetchNextPage,
-            child: Text('Next Page'),
+          Container(
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Text(
+              webSocketMessage,
+              style: TextStyle(fontSize: 16),
+            ),
+          ),
+          SizedBox(height: 20),
+          Expanded(
+            child: ListView.builder(
+              itemCount: ticketList.length,
+              itemBuilder: (context, index) {
+                final ticket = ticketList[index];
+                final colorIndex = index % 4;
+
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    color: _getColor(colorIndex),
+                    child: ListTile(
+                      title: Text(ticket.title ?? '',style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold,color: Color.fromARGB(255, 2, 177, 246))),
+                      subtitle: Text(ticket.description),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
     );
-    // );
+  }
+  Color _getColor(int colorIndex) {
+    List<Color> colors = [
+      Color.fromARGB(255, 202, 205, 206),
+    ];
+
+    return colors[colorIndex % colors.length];
   }
 
   void _connectToWebSocket() {
@@ -355,6 +376,5 @@ void fetchTicketsPage(int page, int offset) async {
     );
   }
 }
-
 
 
