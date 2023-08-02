@@ -236,18 +236,22 @@
 //     );
 //   }
 // }
+// import 'dart:convert';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ticketapp/module/pageResponse.dart';
+import 'package:ticketapp/module/ticketResponse.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
-import 'package:ticketapp/module/pageResponse.dart';
-import 'package:ticketapp/module/ticketResponse.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+// import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 void main() {
   runApp(MyApp());
@@ -437,7 +441,24 @@ class _HomeState extends State<Home> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Center(
-                  child: CircularProgressIndicator(), // Or any other loading widget
+                  child: Transform.scale(
+                    scale: 2.5, // Adjust this value to increase or decrease the size
+                    child: LoadingIndicator(
+                      indicatorType: Indicator.ballPulse,
+                      colors: [Colors.black],
+                      strokeWidth: 2,
+                      // backgroundColor: Colors.white,
+                      // pathBackgroundColor: Colors.white,
+                    ),
+                  // child: LoadingIndicator(
+                  //   indicatorType: Indicator.ballPulse,
+                  //   colors: [Colors.green],
+                  //   strokeWidth: 2,
+                  //   // backgroundColor: Colors.white,
+                  //   // pathBackgroundColor: Colors.white,
+                    
+                  // ),
+                  ),
                 ),
               ),
             )
