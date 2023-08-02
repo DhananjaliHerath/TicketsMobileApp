@@ -47,6 +47,8 @@ class _HomeState extends State<Home> {
 
   int currentPage = 1;
   int offset = 10;
+  ScrollController _scrollController = ScrollController();
+  bool isNotificationShown = false;
 // getpage function //
 
   Future<PageResponse> getTicketsPage(int page, int offset) async {
@@ -71,7 +73,7 @@ class _HomeState extends State<Home> {
     }
   }
 
-  void fetchTicketsPage(int page, int offset) async {
+  Future<void> fetchTicketsPage(int page, int offset) async {
     try {
       var pageResponse = await getTicketsPage(page, offset);
       setState(() {
@@ -88,11 +90,16 @@ class _HomeState extends State<Home> {
     fetchTicketsPage(currentPage, offset);
   }
 
-  void _fetchPreviousPage() {
+  void _fetchPreviousPage() async {
     if (currentPage > 1) {
       currentPage--;
-      fetchTicketsPage(currentPage, offset);
+      await fetchTicketsPage(currentPage, offset);
     }
+  }
+
+  void _refreshList() async {
+    currentPage = 1;
+    await fetchTicketsPage(currentPage, offset);
   }
 
   getAllTickets() async {
@@ -128,7 +135,23 @@ class _HomeState extends State<Home> {
     int page = 1;
     int offset = 10;
     fetchTicketsPage(page, offset);
-    // getTicketsPage(page, offset)
+
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      _fetchNextPage();
+    } else if (_scrollController.position.pixels == 0) {
+      _fetchPreviousPage();
+    }
   }
 
   // void initState() {
@@ -155,6 +178,7 @@ class _HomeState extends State<Home> {
           Container(
             height: MediaQuery.of(context).size.height * 0.9,
             child: ListView.builder(
+              controller: _scrollController,
               itemCount: ticketList.length + 1,
               itemBuilder: (context, index) {
                 if (index == 0) {
@@ -205,19 +229,19 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      bottomNavigationBar: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          ElevatedButton(
-            onPressed: _fetchPreviousPage,
-            child: Text('Previous Page'),
-          ),
-          ElevatedButton(
-            onPressed: _fetchNextPage,
-            child: Text('Next Page'),
-          ),
-        ],
-      ),
+      // bottomNavigationBar: Row(
+      //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //   children: [
+      //     ElevatedButton(
+      //       onPressed: _fetchPreviousPage,
+      //       child: Text('Previous Page'),
+      //     ),
+      //     ElevatedButton(
+      //       onPressed: _fetchNextPage,
+      //       child: Text('Next Page'),
+      //     ),
+      //   ],
+      // ),
     );
     // );
   }
@@ -239,6 +263,35 @@ class _HomeState extends State<Home> {
     stompClient!.activate();
   }
 
+  // void _subscribeToTopic() {
+  //   stompClient?.subscribe(
+  //     destination: '/notifications',
+  //     headers: {},
+  //     callback: (StompFrame frame) {
+  //       print("Received message: ${frame.body}");
+  //       getAllTickets();
+  //       setState(() {
+  //         webSocketMessage = frame.body ?? '';
+
+  //         var jsonData = json.decode(frame.body ?? '');
+  //         var newTicket = Body.fromJson(jsonData);
+
+  //         ticketList.insert(0, newTicket);
+
+  //         // Fluttertoast.showToast(
+  //         //   msg: (webSocketMessage),
+  //         //   toastLength: Toast.LENGTH_SHORT,
+  //         //   gravity: ToastGravity.CENTER,
+  //         //   backgroundColor: Colors.black,
+  //         //   textColor: Colors.white,
+  //         //   fontSize: 16.0,
+  //         // );
+  //         showToastNotification(webSocketMessage);
+  //       });
+  //     },
+  //   );
+  // }
+
   void _subscribeToTopic() {
     stompClient?.subscribe(
       destination: '/notifications',
@@ -246,23 +299,16 @@ class _HomeState extends State<Home> {
       callback: (StompFrame frame) {
         print("Received message: ${frame.body}");
         getAllTickets();
-        setState(() {
-          webSocketMessage = frame.body ?? '';
-
-          var jsonData = json.decode(frame.body ?? '');
-          var newTicket = Body.fromJson(jsonData);
-
-          ticketList.insert(0, newTicket);
-
-          // Fluttertoast.showToast(
-          //   msg: (webSocketMessage),
-          //   toastLength: Toast.LENGTH_SHORT,
-          //   gravity: ToastGravity.CENTER,
-          //   backgroundColor: Colors.black,
-          //   textColor: Colors.white,
-          //   fontSize: 16.0,
-          // );
-        });
+        if (!isNotificationShown) {
+          setState(() {
+            isNotificationShown = true;
+            webSocketMessage = frame.body ?? '';
+            var jsonData = json.decode(frame.body ?? '');
+            var newTicket = Body.fromJson(jsonData);
+            ticketList.insert(0, newTicket);
+          });
+          showToastNotification(webSocketMessage);
+        }
       },
     );
   }
