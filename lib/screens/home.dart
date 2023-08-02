@@ -194,7 +194,8 @@ class _HomeState extends State<Home> {
 
   int currentPage = 1;
   int offset = 10;
-// getpage function //
+           
+// getpage function 
 
   Future<PageResponse> getTicketsPage(int page, int offset) async {
   var url = Uri.parse("http://localhost:8080/tickets/page?page=$page&offset=$offset");
