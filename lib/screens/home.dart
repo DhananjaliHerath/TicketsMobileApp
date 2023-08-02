@@ -155,7 +155,7 @@ class _HomeState extends State<Home> {
           Container(
             height: MediaQuery.of(context).size.height * 0.8,
             child: ListView.builder(
-              itemCount: ticketList.length + 1,
+              itemCount: ticketListPaged.length + 1,
               itemBuilder: (context, index) {
                 if (index == 0) {
                   if (webSocketMessage.isNotEmpty) {
@@ -167,16 +167,11 @@ class _HomeState extends State<Home> {
                   //   // return Container();
                 }
 
-                // if (webSocketMessage.isNotEmpty) {
-                //   showToastNotification(webSocketMessage);
-                //   // snack(webSocketMessage);
-                // }
-
                 final ticketIndex = index - 1;
-
                 return ListTile(
-                  title: Text(ticketList[ticketIndex].title ?? ''),
-                  subtitle: Text(ticketList[ticketIndex].description ?? ''),
+                  title: Text(ticketListPaged[ticketIndex].title ?? ''),
+                  subtitle:
+                      Text(ticketListPaged[ticketIndex].description ?? ''),
                 );
               },
             ),
