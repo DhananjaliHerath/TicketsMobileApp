@@ -148,41 +148,57 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ticket List',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        title: Text('Ticket List'),
       ),
       body: Column(
         children: [
           Container(
-            height: MediaQuery.of(context).size.height * 0.8,
+            height: MediaQuery.of(context).size.height * 0.9,
             child: ListView.builder(
-              itemCount: ticketListPaged.length + 1,
+              itemCount: ticketList.length + 1,
               itemBuilder: (context, index) {
                 if (index == 0) {
+                  //   // return ListTile(
+                  //   //   title: Text('Notification Message'),
+                  //   //   subtitle: Text(webSocketMessage),
+                  //   // );
+                  //   // showToastNotification(webSocketMessage);
+                  //   // return ListTile(
+                  //   // title: Text('Notification Message'),
+                  //   // subtitle: Text(webSocketMessage),
+                  //   // onTap: () {
+                  //   //   showToastNotification(webSocketMessage);
+                  //   // },
+                  //   // );
+                  //   // WidgetsBinding.instance.addPostFrameCallback((_) {
+                  //   //   Fluttertoast.showToast(
+                  //   //     msg: webSocketMessage,
+                  //   //     toastLength: Toast.LENGTH_SHORT,
+                  //   //     gravity: ToastGravity.CENTER,
+                  //   //     backgroundColor: Colors.black,
+                  //   //     textColor: Colors.white,
+                  //   //     fontSize: 16.0,
+                  //   //   );
+                  //   // });
                   if (webSocketMessage.isNotEmpty) {
                     showToastNotification(webSocketMessage);
                     // snack(webSocketMessage);
                   }
+
                   return Container();
+                  //   // return Container();
                 }
 
-                final ticketIndex = index - 1;
-                final colorIndex = ticketIndex % 4;
+                // if (webSocketMessage.isNotEmpty) {
+                //   showToastNotification(webSocketMessage);
+                //   // snack(webSocketMessage);
+                // }
 
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Card(
-                    color: _getColor(colorIndex),
-                    child: ListTile(
-                      title: Text(ticketListPaged[ticketIndex].title ?? '',
-                          style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 2, 177, 246))),
-                      subtitle:
-                          Text(ticketListPaged[ticketIndex].description ?? ''),
-                    ),
-                  ),
+                final ticketIndex = index - 1;
+
+                return ListTile(
+                  title: Text(ticketList[ticketIndex].title ?? ''),
+                  subtitle: Text(ticketList[ticketIndex].description ?? ''),
                 );
               },
             ),
@@ -203,14 +219,7 @@ class _HomeState extends State<Home> {
         ],
       ),
     );
-  }
-
-  Color _getColor(int colorIndex) {
-    List<Color> colors = [
-      Color.fromARGB(255, 202, 205, 206),
-    ];
-
-    return colors[colorIndex % colors.length];
+    // );
   }
 
   void _connectToWebSocket() {
