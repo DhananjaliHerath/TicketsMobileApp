@@ -204,10 +204,10 @@ class _HomeState extends State<Home> {
                   //   //     fontSize: 16.0,
                   //   //   );
                   //   // });
-                  if (webSocketMessage.isNotEmpty) {
-                    showToastNotification(webSocketMessage);
-                    // snack(webSocketMessage);
-                  }
+                  // if (webSocketMessage.isNotEmpty) {
+                  //   showToastNotification(webSocketMessage);
+                  //   // snack(webSocketMessage);
+                  // }
 
                   return Container();
                   //   // return Container();
@@ -298,6 +298,9 @@ class _HomeState extends State<Home> {
       headers: {},
       callback: (StompFrame frame) {
         print("Received message: ${frame.body}");
+        showToastNotification(frame.body ?? '');
+
+        //  showToastNotification(title:frame.body ?? '');
         getAllTickets();
         if (!isNotificationShown) {
           setState(() {
@@ -307,7 +310,6 @@ class _HomeState extends State<Home> {
             var newTicket = Body.fromJson(jsonData);
             ticketList.insert(0, newTicket);
           });
-          showToastNotification(webSocketMessage);
         }
       },
     );

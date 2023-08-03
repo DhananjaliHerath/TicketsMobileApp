@@ -29,10 +29,10 @@ class _LoginScreenState extends State<LoginScreen> {
       _loading = true;
     });
 
-    // body["username"] = userName;
-    // body["password"] = password;
-    body["username"] = "admin@ccms.com";
-    body["password"] = "password";
+    body["username"] = userName;
+    body["password"] = password;
+    // body["username"] = "admin@ccms.com";
+    // body["password"] = "password";
 
     String bodyJason = json.encode(body);
     var response = await http.post(
@@ -50,6 +50,8 @@ class _LoginScreenState extends State<LoginScreen> {
       print("User JWT: ${authResponse?.body.jwt}");
       print("User ID: ${authResponse?.body.user.userId}");
       print("User Roles: ${authResponse?.body.user.roles}");
+
+      print('connected');
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('jwtToken', authResponse!.body.jwt);
