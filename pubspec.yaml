@@ -43,6 +43,7 @@ dependencies:
   flutter_local_notifications: ^10.0.0
   snackbar: ^1.0.2
   awesome_notifications: ^0.7.4+1
+  dropdown_search: ^5.0.6
 
 dev_dependencies:
   flutter_test:

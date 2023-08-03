@@ -11,6 +11,7 @@ import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:snackbar/snackbar.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 
 void main() {
   runApp(MyApp());
@@ -219,7 +220,21 @@ class _HomeState extends State<Home> {
                 // }
 
                 final ticketIndex = index - 1;
-
+                DropdownSearch<String>(
+                  popupProps: PopupProps.menu(
+                    showSelectedItems: true,
+                    disabledItemFn: (String s) => s.startsWith('I'),
+                  ),
+                  items: ["Brazil", "Italia (Disabled)", "Tunisia", 'Canada'],
+                  dropdownDecoratorProps: DropDownDecoratorProps(
+                    dropdownSearchDecoration: InputDecoration(
+                      labelText: "Menu mode",
+                      hintText: "country in menu mode",
+                    ),
+                  ),
+                  onChanged: print,
+                  selectedItem: "Brazil",
+                );
                 return ListTile(
                   title: Text(ticketList[ticketIndex].title ?? ''),
                   subtitle: Text(ticketList[ticketIndex].description ?? ''),
